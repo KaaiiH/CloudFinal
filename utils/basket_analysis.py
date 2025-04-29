@@ -1,14 +1,11 @@
 import pandas as pd
 from mlxtend.frequent_patterns import fpgrowth, association_rules
 
-# Load transactions data
-transactions = pd.read_csv('https://smartshopperstorage2.blob.core.windows.net/shopperdata/400_transactions.csv?sp=r&st=2025-04-29T20:01:27Z&se=2025-05-09T04:01:27Z&sv=2024-11-04&sr=b&sig=yKOgzNbGmCh0aoletCWOPIAMwV6du0gcnXUhvQn7nn0%3D')
-
-# Clean column names
-transactions.columns = transactions.columns.str.strip().str.lower()
+# Load merged data
+df = pd.read_parquet('https://smartshopperstorage2.blob.core.windows.net/shopperdata/merged-data.parquet?sp=r&st=2025-04-29T20:46:02Z&se=2025-05-09T04:46:02Z&sv=2024-11-04&sr=b&sig=k3fU5H5ZCngP9JGAquexh%2BS1zm0PU3YDrj6br2vBbFw%3D')
 
 # Prepare the basket
-basket = (transactions.groupby(['hshd_num', 'product_num'])['spend']
+basket = (df.groupby(['household_key', 'product_id'])['sales_value']
           .sum().unstack().fillna(0))
 
 # Convert to Boolean

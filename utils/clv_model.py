@@ -1,34 +1,26 @@
+# clv_model.py
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 
-# Load transactions and households
-transactions = pd.read_csv('https://smartshopperstorage2.blob.core.windows.net/shopperdata/400_transactions.csv?sp=r&st=2025-04-29T20:01:27Z&se=2025-05-09T04:01:27Z&sv=2024-11-04&sr=b&sig=yKOgzNbGmCh0aoletCWOPIAMwV6du0gcnXUhvQn7nn0%3D')
-households = pd.read_csv('https://smartshopperstorage2.blob.core.windows.net/shopperdata/400_households.csv?sp=r&st=2025-04-29T20:02:10Z&se=2025-05-09T04:02:10Z&sv=2024-11-04&sr=b&sig=CXJEA0IyaYJrHrj0E7gv9z34LMBPvZwWNMXQTUMVzJc%3D')
-
-# Clean column names
-transactions.columns = transactions.columns.str.strip().str.lower()
-households.columns = households.columns.str.strip().str.lower()
-
-# Rename for consistency
-transactions = transactions.rename(columns={'hshd_num': 'household_key', 'spend': 'sales_value'})
-households = households.rename(columns={'hshd_num': 'household_key'})
+# Load the merged data
+df = pd.read_parquet('https://smartshopperstorage2.blob.core.windows.net/shopperdata/merged-data.parquet?sp=r&st=2025-04-29T20:46:02Z&se=2025-05-09T04:46:02Z&sv=2024-11-04&sr=b&sig=k3fU5H5ZCngP9JGAquexh%2BS1zm0PU3YDrj6br2vBbFw%3D')
 
 # Aggregate features per household
-features = transactions.groupby('household_key').agg({
+features = df.groupby('household_key').agg({
     'sales_value': 'sum',
-    'basket_num': 'nunique'
+    'product_id': 'count'
 }).reset_index()
 
 # Rename features
-features.columns = ['household_key', 'total_spent', 'num_baskets']
+features.columns = ['household_key', 'total_spent', 'num_products']
 
 # Generate a proxy for CLV
 features['clv'] = features['total_spent'] * 1.15
 
 # Prepare X (features) and y (target)
-X = features[['total_spent', 'num_baskets']]
+X = features[['total_spent', 'num_products']]
 y = features['clv']
 
 # Split data
