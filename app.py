@@ -7,11 +7,11 @@ import re
 from ast import literal_eval
 
 # Load datasets
-merged = pd.read_parquet('data/merged-data.parquet')
+merged = pd.read_parquet('https://smartshopperstorage2.blob.core.windows.net/shopperdata/merged-data.parquet?sp=r&st=2025-04-29T08:29:48Z&se=2025-04-29T16:29:48Z&sv=2024-11-04&sr=b&sig=3PhYsVk9NL9BvNcG8MrZZjIgcpKquC2xe79CF3OG894%3D')
 
-clv = pd.read_parquet('data/clv-predictions.parquet')
-basket_rules = pd.read_parquet('data/basket-rules.parquet')
-products = pd.read_parquet('data/400-products.parquet')
+clv = pd.read_parquet('https://smartshopperstorage2.blob.core.windows.net/shopperdata/clv-predictions.parquet?sp=r&st=2025-04-29T08:30:10Z&se=2025-04-29T16:30:10Z&sv=2024-11-04&sr=b&sig=DTRFBm0ZaxQdBd428hirJ207cZfl2X1b%2F8YRkOsAJdc%3D')
+basket_rules = pd.read_parquet('https://smartshopperstorage2.blob.core.windows.net/shopperdata/basket-rules.parquet?sp=r&st=2025-04-29T08:30:28Z&se=2025-04-29T16:30:28Z&sv=2024-11-04&sr=b&sig=Af2ANNyucAVYWHtOMzTonql5BKVioNHioWfQH8jbqVA%3D')
+products = pd.read_parquet('https://smartshopperstorage2.blob.core.windows.net/shopperdata/400-products.parquet?sp=r&st=2025-04-29T08:30:48Z&se=2025-04-29T16:30:48Z&sv=2024-11-04&sr=b&sig=1i3HW1hZW6y1kFeJt4XZgHeHFnm6xiDCoxwOAjLR%2BrI%3D')
 products.columns = products.columns.str.strip().str.lower()
 products = products.rename(columns={'product_num': 'product_id'})
 

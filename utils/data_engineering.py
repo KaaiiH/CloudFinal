@@ -4,9 +4,9 @@ def print_available_columns(name, df):
     print(f"Available columns in {name}: {list(df.columns)}")
 
 # Load CSVs
-transactions = pd.read_parquet('data/400-transactions.parquet')
-products = pd.read_parquet('data/400-products.parquet')
-households = pd.read_parquet('data/400-households.parquet')
+transactions = pd.read_parquet('https://smartshopperstorage2.blob.core.windows.net/shopperdata/400-transactions.parquet?sp=r&st=2025-04-29T08:31:43Z&se=2025-04-29T16:31:43Z&sv=2024-11-04&sr=b&sig=c8BtuN2cJiBNj83WIdPYXdb6XrrxKuM2lIKBQKEQz%2Fg%3D')
+products = pd.read_parquet('https://smartshopperstorage2.blob.core.windows.net/shopperdata/400-products.parquet?sp=r&st=2025-04-29T08:32:05Z&se=2025-04-29T16:32:05Z&sv=2024-11-04&sr=b&sig=6awPVmf17kOPiGZmAq0byQYiHIwRW6qJJDlyNfCJyAM%3D')
+households = pd.read_parquet('https://smartshopperstorage2.blob.core.windows.net/shopperdata/400-households.parquet?sp=r&st=2025-04-29T08:32:19Z&se=2025-04-29T16:32:19Z&sv=2024-11-04&sr=b&sig=pJqdNNGS1I55dpEWfDkwf8pUSKJ4QmDDe7y%2BA3S5bb8%3D')
 
 # Clean column names
 transactions.columns = transactions.columns.str.strip().str.lower()
