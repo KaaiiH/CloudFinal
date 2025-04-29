@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 
 # Load the merged data
-df = pd.read_csv('https://smartshopperstorage2.blob.core.windows.net/shopperdata/merged_data.csv?sp=r&st=2025-04-29T00:52:21Z&se=2025-04-29T08:52:21Z&sv=2024-11-04&sr=b&sig=UERZtZKYx0ArXShOpF5G00Kb2zz1q0VwS8uNfiauwbQ%3D')
+df = pd.read_parquet('data\merged-data.parquet')
 
 # Aggregate features per household
 features = df.groupby('household_key').agg({

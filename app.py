@@ -7,10 +7,11 @@ import re
 from ast import literal_eval
 
 # Load datasets
-merged = pd.read_csv('https://smartshopperstorage2.blob.core.windows.net/shopperdata/merged_data.csv?sp=r&st=2025-04-29T00:52:21Z&se=2025-04-29T08:52:21Z&sv=2024-11-04&sr=b&sig=UERZtZKYx0ArXShOpF5G00Kb2zz1q0VwS8uNfiauwbQ%3D')
-clv = pd.read_csv('https://smartshopperstorage2.blob.core.windows.net/shopperdata/clv_predictions.csv?sp=r&st=2025-04-29T00:51:53Z&se=2025-04-29T08:51:53Z&sv=2024-11-04&sr=b&sig=0QJVkMFpXxiYk49GL7or2nJQiOKHnN6DFo%2BtLO%2BgySg%3D')
-basket_rules = pd.read_csv('https://smartshopperstorage2.blob.core.windows.net/shopperdata/basket_rules.csv?sp=r&st=2025-04-29T00:51:29Z&se=2025-04-29T08:51:29Z&sv=2024-11-04&sr=b&sig=kHjOe5dOyFrEiX98dkX0p%2BuOe%2FzPZV4Qo8zZKkCeUV8%3D')
-products = pd.read_csv('https://smartshopperstorage2.blob.core.windows.net/shopperdata/400_products.csv?sp=r&st=2025-04-29T00:49:32Z&se=2025-05-02T08:49:32Z&sv=2024-11-04&sr=b&sig=8jmyCLbNtHJ5%2F5TsEHw0gj7Lgy90f1skep8D%2Fn8BG2w%3D')
+merged = pd.read_parquet('data/merged-data.parquet')
+
+clv = pd.read_parquet('data/clv-predictions.parquet')
+basket_rules = pd.read_parquet('data/basket-rules.parquet')
+products = pd.read_parquet('data/400-products.parquet')
 products.columns = products.columns.str.strip().str.lower()
 products = products.rename(columns={'product_num': 'product_id'})
 
