@@ -4,10 +4,9 @@ def print_available_columns(name, df):
     print(f"Available columns in {name}: {list(df.columns)}")
 
 # Load CSVs
-transactions = pd.read_parquet('https://smartshopperstorage2.blob.core.windows.net/shopperdata/400-transactions.parquet?sp=r&st=2025-04-29T08:31:43Z&se=2025-04-29T16:31:43Z&sv=2024-11-04&sr=b&sig=c8BtuN2cJiBNj83WIdPYXdb6XrrxKuM2lIKBQKEQz%2Fg%3D')
-products = pd.read_parquet('https://smartshopperstorage2.blob.core.windows.net/shopperdata/400-products.parquet?sp=r&st=2025-04-29T08:32:05Z&se=2025-04-29T16:32:05Z&sv=2024-11-04&sr=b&sig=6awPVmf17kOPiGZmAq0byQYiHIwRW6qJJDlyNfCJyAM%3D')
-households = pd.read_parquet('https://smartshopperstorage2.blob.core.windows.net/shopperdata/400-households.parquet?sp=r&st=2025-04-29T08:32:19Z&se=2025-04-29T16:32:19Z&sv=2024-11-04&sr=b&sig=pJqdNNGS1I55dpEWfDkwf8pUSKJ4QmDDe7y%2BA3S5bb8%3D')
-
+transactions = pd.read_csv('https://smartshopperstorage2.blob.core.windows.net/shopperdata/400_transactions.csv?sp=r&st=2025-04-29T20:01:27Z&se=2025-05-09T04:01:27Z&sv=2024-11-04&sr=b&sig=yKOgzNbGmCh0aoletCWOPIAMwV6du0gcnXUhvQn7nn0%3D')
+products = pd.read_csv('https://smartshopperstorage2.blob.core.windows.net/shopperdata/400_products.csv?sp=r&st=2025-04-29T20:01:51Z&se=2025-05-09T04:01:51Z&sv=2024-11-04&sr=b&sig=eeYaLLXYK7R0fvOBIykfdaPqChHUfTbMo1SqOB2au%2BQ%3D')
+households = pd.read_csv('https://smartshopperstorage2.blob.core.windows.net/shopperdata/400_households.csv?sp=r&st=2025-04-29T20:02:10Z&se=2025-05-09T04:02:10Z&sv=2024-11-04&sr=b&sig=CXJEA0IyaYJrHrj0E7gv9z34LMBPvZwWNMXQTUMVzJc%3D')
 # Clean column names
 transactions.columns = transactions.columns.str.strip().str.lower()
 products.columns = products.columns.str.strip().str.lower()

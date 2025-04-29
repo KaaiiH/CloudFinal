@@ -3,17 +3,21 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import ast
+import datetime
 import re
 from ast import literal_eval
 
 # Load datasets
-merged = pd.read_parquet('https://smartshopperstorage2.blob.core.windows.net/shopperdata/merged-data.parquet?sp=r&st=2025-04-29T08:29:48Z&se=2025-04-29T16:29:48Z&sv=2024-11-04&sr=b&sig=3PhYsVk9NL9BvNcG8MrZZjIgcpKquC2xe79CF3OG894%3D')
+merged = pd.read_parquet('https://smartshopperstorage2.blob.core.windows.net/shopperdata/merged-data.parquet?sp=r&st=2025-04-29T20:46:02Z&se=2025-05-09T04:46:02Z&sv=2024-11-04&sr=b&sig=k3fU5H5ZCngP9JGAquexh%2BS1zm0PU3YDrj6br2vBbFw%3D')
+merged['household_key'] = merged['household_key'].astype('Int64')
 
-clv = pd.read_parquet('https://smartshopperstorage2.blob.core.windows.net/shopperdata/clv-predictions.parquet?sp=r&st=2025-04-29T08:30:10Z&se=2025-04-29T16:30:10Z&sv=2024-11-04&sr=b&sig=DTRFBm0ZaxQdBd428hirJ207cZfl2X1b%2F8YRkOsAJdc%3D')
-basket_rules = pd.read_parquet('https://smartshopperstorage2.blob.core.windows.net/shopperdata/basket-rules.parquet?sp=r&st=2025-04-29T08:30:28Z&se=2025-04-29T16:30:28Z&sv=2024-11-04&sr=b&sig=Af2ANNyucAVYWHtOMzTonql5BKVioNHioWfQH8jbqVA%3D')
-products = pd.read_parquet('https://smartshopperstorage2.blob.core.windows.net/shopperdata/400-products.parquet?sp=r&st=2025-04-29T08:30:48Z&se=2025-04-29T16:30:48Z&sv=2024-11-04&sr=b&sig=1i3HW1hZW6y1kFeJt4XZgHeHFnm6xiDCoxwOAjLR%2BrI%3D')
+clv = pd.read_csv('https://smartshopperstorage2.blob.core.windows.net/shopperdata/clv_predictions.csv?sp=r&st=2025-04-29T20:03:13Z&se=2025-05-09T04:03:13Z&sv=2024-11-04&sr=b&sig=K22lOkM%2BBwGXJURDsWhwbIC78qxefFEl3%2BX%2FwAoO%2B7w%3D')
+basket_rules = pd.read_csv('https://smartshopperstorage2.blob.core.windows.net/shopperdata/basket_rules.csv?sp=r&st=2025-04-29T20:02:45Z&se=2025-05-09T04:02:45Z&sv=2024-11-04&sr=b&sig=FH5c35XC60zOpKSTASgk%2BS6A20ijXZ%2FmnWYuKBgNTIE%3D')
+products = pd.read_csv('https://smartshopperstorage2.blob.core.windows.net/shopperdata/400_products.csv?sp=r&st=2025-04-29T20:01:51Z&se=2025-05-09T04:01:51Z&sv=2024-11-04&sr=b&sig=eeYaLLXYK7R0fvOBIykfdaPqChHUfTbMo1SqOB2au%2BQ%3D')
 products.columns = products.columns.str.strip().str.lower()
 products = products.rename(columns={'product_num': 'product_id'})
+product_lookup = products.set_index('product_id')['commodity'].to_dict()
+
 
 # Clean column names
 merged.columns = merged.columns.str.strip().str.lower()
@@ -40,6 +44,7 @@ st.title("Smart Shopper - Login")
 username = st.text_input("Username")
 password = st.text_input("Password", type="password")
 email = st.text_input("Email")
+
 
 if st.button("Login"):
     st.success(f"Welcome {username}!")
@@ -125,23 +130,29 @@ if st.session_state.get('logged_in', False):
         st.subheader("Top Purchased Products (Bar Chart)")
         if not house_data.empty:
             top_products = house_data['product_id'].value_counts().head(10)
-            st.bar_chart(top_products)
+            top_products_named = top_products.rename(index=product_lookup).dropna()
+            st.bar_chart(top_products_named)
         else:
             st.write("No data available.")
 
     # Charts Row 2
     chart3, chart4 = st.columns(2)
 
+    
     with chart3:
         st.subheader("Monthly Spending Trend (Line Chart)")
+        def convert_year_week_to_date(row):
+            try:
+                return datetime.datetime.strptime(f"{int(row['year'])}-{int(row['week_num'])}-1", "%Y-%W-%w")
+            except:
+                return pd.NaT
         if not house_data.empty:
-            house_data['purchase_month'] = pd.to_datetime(house_data['year'].astype(str) + '-' + house_data['week_num'].astype(str) + '-1', errors='coerce')
+            house_data['purchase_month'] = house_data.apply(convert_year_week_to_date, axis=1)
             monthly_spending = house_data.groupby(house_data['purchase_month'].dt.to_period('M'))['sales_value'].sum()
             monthly_spending.index = monthly_spending.index.astype(str)
             st.line_chart(monthly_spending)
         else:
             st.write("No data available.")
-
     with chart4:
         st.subheader("Top Product Bundles (Lift)")
         st.caption("Lift > 1 means stronger buying relationship between products.")
@@ -149,6 +160,9 @@ if st.session_state.get('logged_in', False):
         if not basket_rules.empty:
             top_rules = basket_rules.sort_values(by='lift', ascending=False).head(5)
 
+            def get_name(pid):
+                return product_lookup.get(int(pid), f"Product {pid}")
+            
             for idx, row in top_rules.iterrows():
                 antecedents = row['antecedents']
                 consequents = row['consequents']
@@ -161,10 +175,16 @@ if st.session_state.get('logged_in', False):
                 clean_con = re.sub(r'[a-z(){}]', '', consequents)
                 clean_con = clean_con.split(",")
 
+                
+
                 if len(clean_ant) > 1:
-                    st.markdown(f"👉 **If someone buys** {clean_ant[0]} or {clean_ant[1]} **→ Recommend** _{clean_con[0]}_ (**Lift: {row['lift']:.2f}**)")
+                    ant_names = [get_name(p) for p in clean_ant[:2]]
+                    con_name = get_name(clean_con[0])
+                    st.markdown(f"👉 **If someone buys** {ant_names[0]} or {ant_names[1]} **→ Recommend** _{con_name}_ (**Lift: {row['lift']:.2f}**)")
                 else:
-                    st.markdown(f"👉 **If someone buys** _{clean_ant[0]}_ **→ Recommend** _{clean_con[0]}_ (**Lift: {row['lift']:.2f}**)")
+                    ant_name = get_name(clean_ant[0])
+                    con_name = get_name(clean_con[0])
+                    st.markdown(f"👉 **If someone buys** _{ant_name}_ **→ Recommend** _{con_name}_ (**Lift: {row['lift']:.2f}**)")
 
         else:
             st.write("No basket analysis data available.")
